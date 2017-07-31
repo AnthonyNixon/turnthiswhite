@@ -48,53 +48,15 @@ func main() {
 		turnthiswhite.Number = currentNumber
 		turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%-6x", currentNumber), " ", "0", -1)
 
-		//id := c.Param("id")
-		//row := db.QueryRow("select id, name, crondef, command, description, active, logtime from jobs where id = ?;", id)
-		//err = row.Scan(&cronjob.Id, &cronjob.Name, &cronjob.Cron_def, &cronjob.Command, &cronjob.Description, &cronjob.Active, &cronjob.Logtime)
-		//if err != nil {
-		//	// if no results, send null
-		//	result = gin.H{
-		//		"result": nil,
-		//		"count":  0,
-		//	}
-		//} else {
-		//	result = gin.H{
-		//		"result": cronjob,
-		//		"count":  1,
-		//	}
-		//}
-
-		c.JSON(http.StatusOK, gin.H{
-			"result": turnthiswhite,
-		})
+		c.JSON(http.StatusOK, turnthiswhite)
 	})
 
-	router.PUT("/job", func(c *gin.Context) {
-		//var cronjob Cronjob
-		//c.BindJSON(&cronjob)
-		//
-		//stmt, err := db.Prepare("update jobs set name = ?, crondef = ?, command = ?, description = ?, active = ? where id = ?;")
-		//
-		//if err != nil {
-		//	fmt.Print(err.Error())
-		//}
-		//
-		//_, err = stmt.Exec(cronjob.Name, cronjob.Cron_def, cronjob.Command, cronjob.Description, cronjob.Active, cronjob.Id)
-		//if err != nil {
-		//	fmt.Print(err.Error())
-		//}
-		//
-		//defer stmt.Close()
+	router.PUT("/color", func(c *gin.Context) {
+
 		c.JSON(http.StatusOK, gin.H{})
 	})
 
-	router.OPTIONS("/job", func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
-		c.JSON(http.StatusOK, struct{}{})
-	})
-
-	router.OPTIONS("/jobs", func(c *gin.Context) {
+	router.OPTIONS("/color", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
 		c.JSON(http.StatusOK, struct{}{})
