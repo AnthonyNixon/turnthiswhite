@@ -11,14 +11,46 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
-func main() {
-	DB_USER := os.Getenv("CRONDBUSER")
-	DB_PASS := os.Getenv("CRONDBPASS")
+func getCurrentNumberFromDB() (v int) {
+	DB_USER := os.Getenv("TTSDBUSER")
+	DB_PASS := os.Getenv("TTSDBPASS")
 	DB_HOST := os.Getenv("DBHOST")
 
-	dsn := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ":3306)/cronager?parseTime=true"
+	dsn := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ":3306)/turnthiswhite"
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	// make sure our connection is available
+	err = db.Ping()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	var currentValue = 0
+
+	row := db.QueryRow("select value from variables where name = 'currentnum';")
+	err = row.Scan(&currentValue)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	fmt.Printf("Starting at: %d\n", currentValue)
+	return currentValue
+}
+
+var currentNumber = 0
+
+func startSync() {
+	DB_USER := os.Getenv("TTSDBUSER")
+	DB_PASS := os.Getenv("TTSDBPASS")
+	DB_HOST := os.Getenv("DBHOST")
+
+	dsn := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ":3306)/turnthiswhite"
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -30,13 +62,31 @@ func main() {
 	if err != nil {
 		fmt.Print(err.Error())
 	}
+
+	for range time.Tick(time.Minute) {
+		fmt.Println("Syncing DB...")
+		stmt, err := db.Prepare("update `variables` SET value = ? WHERE name = 'currentnum';")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		_, err = stmt.Exec(currentNumber)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+	}
+}
+
+func main() {
+
+	currentNumber = getCurrentNumberFromDB()
+	go startSync()
+
 	type Turnthiswhite struct {
 		Number       int    `json:"number"`
 		Color        string `json:"color"`
 		InverseColor string `json:"inverseColor"`
 	}
-
-	currentNumber := 0
 
 	router := gin.Default()
 	// Add API handlers here
