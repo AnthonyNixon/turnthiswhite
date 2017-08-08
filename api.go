@@ -103,7 +103,7 @@ func main() {
 		c.JSON(http.StatusOK, turnthiswhite)
 	})
 
-	router.PUT("/color", func(c *gin.Context) {
+	router.PUT("/whiter", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
 		currentNumber++
 		turnthiswhite.Number = currentNumber
@@ -114,7 +114,32 @@ func main() {
 		c.JSON(http.StatusOK, turnthiswhite)
 	})
 
+	router.PUT("/darker", func(c *gin.Context) {
+		var turnthiswhite Turnthiswhite
+		currentNumber--
+		turnthiswhite.Number = currentNumber
+		turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
+		turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.JSON(http.StatusOK, turnthiswhite)
+	})
+
 	router.OPTIONS("/color", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET,PUT")
+		c.Header("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
+		c.JSON(http.StatusOK, struct{}{})
+	})
+
+	router.OPTIONS("/lighter", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET,PUT")
+		c.Header("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
+		c.JSON(http.StatusOK, struct{}{})
+	})
+
+	router.OPTIONS("/darker", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET,PUT")
 		c.Header("Access-Control-Allow-Headers", "access-control-allow-origin, access-control-allow-headers")
