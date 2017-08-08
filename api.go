@@ -103,7 +103,7 @@ func main() {
 		c.JSON(http.StatusOK, turnthiswhite)
 	})
 
-	router.PUT("/whiter", func(c *gin.Context) {
+	router.PUT("/lighter", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
 		currentNumber++
 		turnthiswhite.Number = currentNumber
