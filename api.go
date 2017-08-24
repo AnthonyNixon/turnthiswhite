@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"time"
 )
 
@@ -87,6 +89,17 @@ func rateClear() {
 }
 
 func main() {
+	os.Setenv("APIPID", strconv.Itoa(os.Getpid()))
+	fmt.Println(os.Getpid())
+
+	file, err := os.Create("api.pid")
+	if err != nil {
+		log.Fatal("Cannot create pid file", err)
+	}
+
+	fmt.Fprintf(file, strconv.Itoa(os.Getpid()))
+
+	file.Close()
 
 	currentNumber = getCurrentNumberFromDB()
 	go startSync()
