@@ -129,9 +129,10 @@ func main() {
 
 	router.PUT("/lighter", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
+		var remoteAddr = strings.Split(c.Request.RemoteAddr, ":")[0]
 
-		rates[c.Request.RemoteAddr] += 1
-		if rates[c.Request.RemoteAddr] <= RATE_LIMIT {
+		rates[remoteAddr] += 1
+		if rates[remoteAddr] <= RATE_LIMIT {
 			currentNumber++
 			turnthiswhite.Number = currentNumber
 			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
@@ -148,9 +149,10 @@ func main() {
 
 	router.PUT("/darker", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
+		var remoteAddr = strings.Split(c.Request.RemoteAddr, ":")[0]
 
-		rates[c.Request.RemoteAddr] += 1
-		if rates[c.Request.RemoteAddr] <= RATE_LIMIT {
+		rates[remoteAddr] += 1
+		if rates[remoteAddr] <= RATE_LIMIT {
 			currentNumber--
 			turnthiswhite.Number = currentNumber
 			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
