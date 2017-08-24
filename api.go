@@ -134,6 +134,9 @@ func main() {
 		rates[remoteAddr] += 1
 		if rates[remoteAddr] <= RATE_LIMIT {
 			currentNumber++
+			if currentNumber > 16777215 {
+				currentNumber = 16777215
+			}
 			turnthiswhite.Number = currentNumber
 			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
 			turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
@@ -154,6 +157,9 @@ func main() {
 		rates[remoteAddr] += 1
 		if rates[remoteAddr] <= RATE_LIMIT {
 			currentNumber--
+			if currentNumber < 0 {
+				currentNumber = 0
+			}
 			turnthiswhite.Number = currentNumber
 			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
 			turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
