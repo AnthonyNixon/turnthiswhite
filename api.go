@@ -129,7 +129,7 @@ func main() {
 
 	router.PUT("/lighter", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
-		var remoteAddr = strings.Split(c.Request.RemoteAddr, ":")[0]
+		var remoteAddr = c.Request.RemoteAddr
 
 		rates[remoteAddr] += 1
 		if rates[remoteAddr] <= RATE_LIMIT {
@@ -152,7 +152,7 @@ func main() {
 
 	router.PUT("/darker", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
-		var remoteAddr = strings.Split(c.Request.RemoteAddr, ":")[0]
+		var remoteAddr = c.Request.RemoteAddr
 
 		rates[remoteAddr] += 1
 		if rates[remoteAddr] <= RATE_LIMIT {
