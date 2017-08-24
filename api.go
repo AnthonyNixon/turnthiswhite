@@ -44,6 +44,8 @@ func getCurrentNumberFromDB() (v int) {
 }
 
 var currentNumber = 0
+var rates map[string]int
+var RATE_LIMIT = 10
 
 func startSync() {
 	DB_USER := os.Getenv("TTSDBUSER")
@@ -77,10 +79,18 @@ func startSync() {
 	}
 }
 
+func rateClear() {
+	for range time.Tick(time.Second) {
+		fmt.Println("Clearing Rates...")
+		rates = make(map[string]int)
+	}
+}
+
 func main() {
 
 	currentNumber = getCurrentNumberFromDB()
 	go startSync()
+	go rateClear()
 
 	type Turnthiswhite struct {
 		Number       int    `json:"number"`
@@ -101,28 +111,44 @@ func main() {
 
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(http.StatusOK, turnthiswhite)
+		fmt.Println(rates)
 	})
 
 	router.PUT("/lighter", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
-		currentNumber++
-		turnthiswhite.Number = currentNumber
-		turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
-		turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
 
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.JSON(http.StatusOK, turnthiswhite)
+		rates[c.Request.RemoteAddr] += 1
+		if rates[c.Request.RemoteAddr] <= RATE_LIMIT {
+			currentNumber++
+			turnthiswhite.Number = currentNumber
+			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
+			turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
+
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.JSON(http.StatusOK, turnthiswhite)
+		} else {
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.JSON(http.StatusTooManyRequests, turnthiswhite)
+		}
+
 	})
 
 	router.PUT("/darker", func(c *gin.Context) {
 		var turnthiswhite Turnthiswhite
-		currentNumber--
-		turnthiswhite.Number = currentNumber
-		turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
-		turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
 
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.JSON(http.StatusOK, turnthiswhite)
+		rates[c.Request.RemoteAddr] += 1
+		if rates[c.Request.RemoteAddr] <= RATE_LIMIT {
+			currentNumber--
+			turnthiswhite.Number = currentNumber
+			turnthiswhite.Color = strings.Replace(fmt.Sprintf("#%6x", currentNumber), " ", "0", -1)
+			turnthiswhite.InverseColor = strings.Replace(fmt.Sprintf("#%6x", (16777215-currentNumber)), " ", "0", -1)
+
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.JSON(http.StatusOK, turnthiswhite)
+		} else {
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.JSON(http.StatusTooManyRequests, turnthiswhite)
+		}
 	})
 
 	router.OPTIONS("/color", func(c *gin.Context) {
